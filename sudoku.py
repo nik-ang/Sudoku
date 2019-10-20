@@ -236,13 +236,45 @@ class SudokuState(object):
 #------------------------------------------------------------ SOLVER ---------------------------------------------------------------------------------------
 
 class Solver(object):
-    def __init__(self, config):
-        self.configArray = config.split(",")
+
+    def __init__(self, config, stringSeparation):
+
+        self.isSolvable = True
+        if (stringSeparation == ''):
+            self.configArray = list(config)
+        else:
+            self.configArray = config.split(stringSeparation)
         self.configArray = list(map(int, self.configArray))
-        print("Start!")
-        self.rootState = SudokuState(None, 0, self.configArray, True)
-        #self.rootState.printSudoku()
-        self.ast_search()
+
+        if (not self.configIsNull(self.configArray)):
+            print("Start!")
+            self.rootState = SudokuState(None, 0, self.configArray, True)
+            #self.rootState.printSudoku()
+            #self.ast_search()
+        else:
+            print('Invalid configuration')
+            self.isSolvable = False
+        
+
+    def configIsNull(self, configList):
+        someSum = 0
+        for i in configList:
+            if (i < 0 or i > 9 or i is None):
+                return True
+            else:
+                someSum = someSum + i
+        if (someSum == 0):
+            return True
+        else:
+            return False
+
+    def getSolvedConfig(self):
+        if (self.isSolvable):
+            solvedState = self.ast_search()
+            return solvedState.getConfig()
+        else:
+            print("Configuration is not solvable")
+
 
     def ast_search(self):
         initialState = self.rootState
@@ -274,9 +306,10 @@ class Solver(object):
 
  # SOLVER CONSTRUCTORS
 
-#S = Solver("5,3,0,0,7,0,0,0,0,6,0,0,1,9,5,0,0,0,0,9,8,0,0,0,0,6,0,8,0,0,0,6,0,0,0,3,4,0,0,8,0,3,0,0,1,7,0,0,0,2,0,0,0,6,0,6,0,0,0,0,2,8,0,0,0,0,4,1,9,0,0,5,0,0,0,0,8,0,0,7,9")
+#S = Solver("5,3,0,0,7,0,0,0,0,6,0,0,1,9,5,0,0,0,0,9,8,0,0,0,0,6,0,8,0,0,0,6,0,0,0,3,4,0,0,8,0,3,0,0,1,7,0,0,0,2,0,0,0,6,0,6,0,0,0,0,2,8,0,0,0,0,4,1,9,0,0,5,0,0,0,0,8,0,0,7,9", ",")
 #S = Solver("5,3,4,6,7,8,9,1,2,6,7,2,1,9,5,3,4,8,1,9,8,3,4,2,5,6,7,8,5,9,7,6,1,4,2,3,4,2,6,8,5,3,7,9,1,7,1,3,9,2,4,8,5,6,9,6,1,5,3,7,2,8,4,2,8,7,4,1,9,6,3,5,3,4,5,2,8,6,1,7,9")
 
-#S = Solver("0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,8,5,0,0,1,0,2,0,0,0,0,0,0,0,5,0,7,0,0,0,0,0,4,0,0,0,1,0,0,0,9,0,0,0,0,0,0,0,5,0,0,0,0,0,0,7,3,0,0,2,0,1,0,0,0,0,0,0,0,0,4,0,0,0,9")
+#S = Solver("0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,8,5,0,0,1,0,2,0,0,0,0,0,0,0,5,0,7,0,0,0,0,0,4,0,0,0,1,0,0,0,9,0,0,0,0,0,0,0,5,0,0,0,0,0,0,7,3,0,0,2,0,1,0,0,0,0,0,0,0,0,4,0,0,0,9", ",")
+#S.getSolvedConfig()
 
     
