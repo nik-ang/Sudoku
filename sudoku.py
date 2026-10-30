@@ -25,71 +25,71 @@ class Cell(object):
         self.sudokuSate = sudokuSate
         self.row = row
         self.column = column
-        self.quadrant = self.setQuadrant()
-        self.nonPossibleValues = []
-        self.possibleValues = []
+        self.quadrant = self.set_quadrant()
+        self.non_possible_values = []
+        self.possible_values = []
         self.value = value
         self.fixed = fixed
 
-    def setValue(self, value):
+    def set_value(self, value):
         self.value = value
     
-    def getValue(self):
+    def get_value(self):
         return self.value
 
-    def getQuadrant(self):
+    def get_quadrant(self):
         return self.quadrant
 
-    def setFixed(self, value):
+    def set_fixed(self, value):
         self.fixed = value
 
-    def isFixed(self):
+    def is_fixed(self):
         return self.fixed
 
-    def getSudokuState(self):
+    def get_sudoku_state(self):
         return self.sudokuSate
 
     #Set the quadrant by numeration Thorem
-    def setQuadrant(self):
-        rowIndex = math.ceil( 3*self.row / 9)
-        columnIndex = math.ceil( 3*self.column / 9)
-        return (rowIndex - 1) * 3 + columnIndex
+    def set_quadrant(self):
+        row_index = math.ceil(3 * self.row / 9)
+        col_index = math.ceil(3 * self.column / 9)
+        return (row_index - 1) * 3 + col_index
     
     #Compare each self with the ones in its own row, column and quadrant. Excludes self.
     #Save non repeating values only
-    def findNonPossibleValues(self):
+    def find_non_possible_values(self):
         #Rows
         for x in range(len(self.sudokuSate.sudoku)):
-            selectedCell = self.sudokuSate.getCell(x, self.column - 1)
-            if (selectedCell.getValue() is not 0 and selectedCell is not self):
-                if (selectedCell.getValue() not in self.nonPossibleValues):
-                    self.nonPossibleValues.append(selectedCell.getValue())
+            selected_cell = self.sudokuSate.getCell(x, self.column - 1)
+            if (selected_cell.get_value() is not 0 and selected_cell is not self):
+                if (selected_cell.get_value() not in self.non_possible_values):
+                    self.non_possible_values.append(selected_cell.get_value())
 
         #Columns
         for y in range(len(self.sudokuSate.sudoku)):
-            selectedCell = self.sudokuSate.getCell(self.row - 1, y)
-            if (selectedCell.getValue() is not 0 and selectedCell is not self):
-                if (selectedCell.getValue() not in  self.nonPossibleValues):
-                    self.nonPossibleValues.append(selectedCell.getValue())
+            selected_cell = self.sudokuSate.getCell(self.row - 1, y)
+            if (selected_cell.get_value() is not 0 and selected_cell is not self):
+                if (selected_cell.get_value() not in  self.non_possible_values):
+                    self.non_possible_values.append(selected_cell.get_value())
 
         #Quadrants
         for x in range(len(self.sudokuSate.sudoku)):
             for y in range(len(self.sudokuSate.sudoku)):
-                selectedCell = self.sudokuSate.getCell(x, y)
-                if (selectedCell.getValue() is not 0 and selectedCell.getQuadrant() == self.quadrant and selectedCell is not self):
-                    if (selectedCell.getValue() not in self.nonPossibleValues):
-                        self.nonPossibleValues.append(selectedCell.getValue())
+                selected_cell = self.sudokuSate.getCell(x, y)
+                if (selected_cell.get_value() is not 0 and selected_cell.get_quadrant() == self.quadrant and selected_cell is not self):
+                    if (selected_cell.get_value() not in self.non_possible_values):
+                        self.non_possible_values.append(selected_cell.get_value())
 
     #Every digit from 1 to 9 that is not in Non Possible Values
-    def findPossibleValues(self):
-        if (self.isFixed()):
-            self.possibleValues.append(self.value)
+    def find_possible_values(self):
+        if (self.is_fixed()):
+            self.possible_values.append(self.value)
         else:
-            self.findNonPossibleValues()
+            self.find_non_possible_values()
             for x in range(10):
-                if (x not in self.nonPossibleValues and x > 0):
-                    self.possibleValues.append(x)
-        #print(self.possibleValues)
+                if (x not in self.non_possible_values and x > 0):
+                    self.possible_values.append(x)
+        #print(self.possible_values)
 
 
 #----------------------------------------------SUDOKUSTATE------------------------------------------------------------------------------------
@@ -99,13 +99,13 @@ class SudokuState(object):
 
         #Generate Initial State
         if isInitial:
-            self.sudoku: Cell = [[Cell for i in range(9)] for j in range(9)] #Array of Cells
+            self.sudoku: Cell = [[Cell for _ in range(9)] for _ in range(9)] #Array of Cells
             self.configuration = configArray
             self.initiCells(configArray)
             self.parent: SudokuState = parent #Class SudokuState
             self.depth: int = depth
             self.children: SudokuState = [] #Array of nodes
-            self.findPossibleValues()
+            self.find_possible_values()
             #print(self.configuration)
             self.printSudoku()
 
@@ -117,12 +117,12 @@ class SudokuState(object):
             self.parent: SudokuState = parent #Class SudokuState
             self.depth: int = depth
             self.children: SudokuState = [] #Array of nodes
-            self.getCell(x, y).setValue(value)
-            self.getCell(x, y).setFixed(True)
-            self.configuration = self.getConfig()
+            self.getCell(x, y).set_value(value)
+            self.getCell(x, y).set_fixed(True)
+            self.configuration = self.get_config()
             #print(self.configuration)
             #self.printFixedConfig()
-            self.findPossibleValues()
+            self.find_possible_values()
             #self.printSudoku()
 
     #Initialize Cell Objects in Array
@@ -138,27 +138,27 @@ class SudokuState(object):
                 k += 1
 
     #Find the possible values of every cell object
-    def findPossibleValues(self):
+    def find_possible_values(self):
         for x in range(len(self.sudoku)):
             for y in range(len(self.sudoku)):
-                self.getCell(x, y).findPossibleValues()
+                self.getCell(x, y).find_possible_values()
 
     def getCell(self, x, y):
         return self.sudoku[x][y]
 
     #Return sudoku in a 1D array. For comparing.
-    def getConfig(self):
+    def get_config(self):
         configuration = []
         for x in range(len(self.sudoku)):
             for y in range(len(self.sudoku)):
-                configuration.append(self.getCell(x, y).getValue())
+                configuration.append(self.getCell(x, y).get_value())
         return configuration
 
     def printFixedConfig(self):
         configuration = []
         for x in range(len(self.sudoku)):
             for y in range(len(self.sudoku)):
-                if (self.getCell(x, y).isFixed()):
+                if (self.getCell(x, y).is_fixed()):
                     configuration.append(1)
                 else:
                     configuration.append(0)
@@ -169,7 +169,7 @@ class SudokuState(object):
             for y in range(len(self.sudoku)):
                 if (y % 3 == 0):
                     print("|", end = '')
-                print("{:<4}".format(self.getCell(x, y).getValue()), end="")
+                print("{:<4}".format(self.getCell(x, y).get_value()), end="")
             print()
             if ((x+1) % 3 == 0):
                 print('------------------------------------')
@@ -177,21 +177,21 @@ class SudokuState(object):
 
     #If no cell object has a value of 0, it is solved
     #This works only because of how the node expansion works
-    def isSolved(self):
+    def is_solved(self):
         for x in range(len(self.sudoku)):
             for y in range(len(self.sudoku)):
-                if (self.getCell(x, y).getValue() is 0):
+                if (self.getCell(x, y).get_value() is 0):
                     return False
         return True           
 
     #-------------------------------------------------- HEURISTICS --------------------------------------------------
 
     #Sum the length of every possible values array of cells
-    def countPossibleValues(self):
+    def countpossible_values(self):
         num = 0
         for x in range(len(self.sudoku)):
             for y in range(len(self.sudoku)):
-                num += len(self.getCell(x, y).possibleValues)
+                num += len(self.getCell(x, y).possible_values)
         #print(num)
         return num
 
@@ -199,7 +199,7 @@ class SudokuState(object):
     def leadsToSolution(self):
         for x in range(len(self.sudoku)):
             for y in range(len(self.sudoku)):
-                if (len(self.getCell(x, y).possibleValues) == 0):
+                if (len(self.getCell(x, y).possible_values) == 0):
                     return False
         return True
 
@@ -209,27 +209,27 @@ class SudokuState(object):
     #The changes are made by the Cell Constructor
     #Create it only if the cell is not fixed
     def createNode(self, x, y, value):
-        if (value in self.getCell(x, y).possibleValues and not self.getCell(x, y).isFixed()):
-            newSudoku = []
+        if (value in self.getCell(x, y).possible_values and not self.getCell(x, y).is_fixed()):
+            new_sudoku = []
             for i in range(len(self.sudoku)):
                 for j in range(len(self.sudoku)):
-                    newSudoku.append(self.getCell(i, j).getValue())
-            newSudokuState = SudokuState(self, self.depth + 1, newSudoku, False, x, y, value)
-            return newSudokuState
+                    new_sudoku.append(self.getCell(i, j).get_value())
+            new_sudoku_state = SudokuState(self, self.depth + 1, new_sudoku, False, x, y, value)
+            return new_sudoku_state
         return None
  
     #Search for the non fixed cell with fewer possible values and create nodes with its values
     #Sort the cells in an array, ordered by the lengths of possible values array and take the first element
-    def expandNode(self):
+    def expand_node(self):
         nodes = []
         for x in range(len(self.sudoku)):
             for y in range(len(self.sudoku)):
-                if (not self.getCell(x, y).isFixed()):
+                if (not self.getCell(x, y).is_fixed()):
                     nodes.append(self.getCell(x, y))
-        nodes.sort(key=lambda x: len(x.possibleValues))
-        nodeToExpand = nodes[0]
-        for value in nodeToExpand.possibleValues:
-            self.children.append(self.createNode(nodeToExpand.row - 1, nodeToExpand.column - 1, value))
+        nodes.sort(key=lambda x: len(x.possible_values))
+        node_to_expand = nodes[0]
+        for value in node_to_expand.possible_values:
+            self.children.append(self.createNode(node_to_expand.row - 1, node_to_expand.column - 1, value))
         return self.children
 
 
@@ -237,26 +237,26 @@ class SudokuState(object):
 
 class Solver(object):
 
-    def __init__(self, config, stringSeparation):
+    def __init__(self, config, string_separator):
 
-        self.isSolvable = True
-        if (stringSeparation == ''):
+        self.is_solvable = True
+        if (string_separator == ''):
             self.configArray = list(config)
         else:
-            self.configArray = config.split(stringSeparation)
+            self.configArray = config.split(string_separator)
         self.configArray = list(map(int, self.configArray))
 
-        if (not self.configIsNull(self.configArray)):
+        if (not self.config_is_null(self.configArray)):
             print("Start!")
-            self.rootState = SudokuState(None, 0, self.configArray, True)
-            #self.rootState.printSudoku()
+            self.root_state = SudokuState(None, 0, self.configArray, True)
+            #self.root_state.printSudoku()
             #self.ast_search()
         else:
             print('Invalid configuration')
-            self.isSolvable = False
+            self.is_solvable = False
         
 
-    def configIsNull(self, configList):
+    def config_is_null(self, configList):
         someSum = 0
         for i in configList:
             if (i < 0 or i > 9 or i is None):
@@ -268,48 +268,48 @@ class Solver(object):
         else:
             return False
 
-    def getSolvedConfig(self):
-        if (self.isSolvable):
-            solvedState = self.ast_search()
-            return solvedState.getConfig()
-        else:
+    def get_solved_config(self):
+        if (not self.is_solvable):
             print("Configuration is not solvable")
+            raise Exception("Configuration is not solvable") 
+        solved_state = self.ast_search()
+        return solved_state.get_config()
 
 
     def ast_search(self):
-        initialState = self.rootState
+        initial_state = self.root_state
         q = queue.PriorityQueue()
         counter = 0
         visited = []
         frontier = []
-        q.put((1, 0, initialState))
+        q.put((1, 0, initial_state))
         while not q.empty():
-            currentState = q.get()[2]
-            if currentState.isSolved():
+            current_state = q.get()[2]
+            if current_state.is_solved():
                 print("Solved")
-                currentState.printSudoku()
-                return currentState
+                current_state.printSudoku()
+                return current_state
             else:
-                visited.append(currentState.configuration)
-                if currentState.configuration in frontier: frontier.remove(currentState.configuration)
-                children = currentState.expandNode()
+                visited.append(current_state.configuration)
+                if current_state.configuration in frontier: frontier.remove(current_state.configuration)
+                children = current_state.expand_node()
                 #print(len(children))
                 for child in children:
                     counter += 1
                     if (child.configuration not in visited and child.configuration not in frontier and child.leadsToSolution()):
-                        q.put((child.countPossibleValues(), counter, child))
+                        q.put((child.countpossible_values(), counter, child))
                         frontier.append(child.configuration)
-                    else:
-                        continue
         print("No solution found")
         return None
 
- # SOLVER CONSTRUCTORS
 
-#S = Solver("5,3,0,0,7,0,0,0,0,6,0,0,1,9,5,0,0,0,0,9,8,0,0,0,0,6,0,8,0,0,0,6,0,0,0,3,4,0,0,8,0,3,0,0,1,7,0,0,0,2,0,0,0,6,0,6,0,0,0,0,2,8,0,0,0,0,4,1,9,0,0,5,0,0,0,0,8,0,0,7,9", ",")
-#S = Solver("5,3,4,6,7,8,9,1,2,6,7,2,1,9,5,3,4,8,1,9,8,3,4,2,5,6,7,8,5,9,7,6,1,4,2,3,4,2,6,8,5,3,7,9,1,7,1,3,9,2,4,8,5,6,9,6,1,5,3,7,2,8,4,2,8,7,4,1,9,6,3,5,3,4,5,2,8,6,1,7,9")
+if __name__ == '__main__':
+    # SOLVER CONSTRUCTORS
 
-#S = Solver("0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,8,5,0,0,1,0,2,0,0,0,0,0,0,0,5,0,7,0,0,0,0,0,4,0,0,0,1,0,0,0,9,0,0,0,0,0,0,0,5,0,0,0,0,0,0,7,3,0,0,2,0,1,0,0,0,0,0,0,0,0,4,0,0,0,9", ",")
-#S.getSolvedConfig()
+    S = Solver("5,3,0,0,7,0,0,0,0,6,0,0,1,9,5,0,0,0,0,9,8,0,0,0,0,6,0,8,0,0,0,6,0,0,0,3,4,0,0,8,0,3,0,0,1,7,0,0,0,2,0,0,0,6,0,6,0,0,0,0,2,8,0,0,0,0,4,1,9,0,0,5,0,0,0,0,8,0,0,7,9", ",")
+    #S = Solver("5,3,4,6,7,8,9,1,2,6,7,2,1,9,5,3,4,8,1,9,8,3,4,2,5,6,7,8,5,9,7,6,1,4,2,3,4,2,6,8,5,3,7,9,1,7,1,3,9,2,4,8,5,6,9,6,1,5,3,7,2,8,4,2,8,7,4,1,9,6,3,5,3,4,5,2,8,6,1,7,9")
+
+    #S = Solver("0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,8,5,0,0,1,0,2,0,0,0,0,0,0,0,5,0,7,0,0,0,0,0,4,0,0,0,1,0,0,0,9,0,0,0,0,0,0,0,5,0,0,0,0,0,0,7,3,0,0,2,0,1,0,0,0,0,0,0,0,0,4,0,0,0,9", ",")
+    S.get_solved_config()
 
     
